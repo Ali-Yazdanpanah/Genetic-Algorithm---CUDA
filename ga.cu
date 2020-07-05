@@ -216,7 +216,7 @@ void calculate_fitness(int *fitness, char *p, int el_sz, int total_sz,
   }
 }
 
-__device__ void fitness_kernel(int *fitness, char *p, int el_sz, int total_sz,
+__global__ void fitness_kernel(int *fitness, char *p, int el_sz, int total_sz,
                                char *gauge) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (idx < total_sz) {
