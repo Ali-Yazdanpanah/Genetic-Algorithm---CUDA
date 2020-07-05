@@ -1,8 +1,10 @@
-all: GA-serial 
+all: GA-serial GA-parallel
 
-GA-serial: ga.c
+ga-serial: ga.c
 	gcc -pg ga.c -o ga-serial
 
 clean:
-	rm ga-serial
-	
+	rm ga-serial ga-parallel
+
+ga-parallel: ga.cu
+	gcc -pg ga.cu -o ga-parallel	
