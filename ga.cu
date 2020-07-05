@@ -283,17 +283,18 @@ int main(int argc, char **argv) {
   CUDA_CHECK_RETURN(cudaMalloc((void **)&d_p, sizeof(char) * total_sz));
   CUDA_CHECK_RETURN(cudaMalloc((void **)&d_fitness, sizeof(int) * pop_size));
   CUDA_CHECK_RETURN(cudaMalloc((void **)&d_target, sizeof(char) * el_sz));
-  CUDA_CHECK_RETURN(
-      cudaMemcpy(d_p, p, sizeof(char) * total_sz, cudaMemcpyHostToDevice));
-  CUDA_CHECK_RETURN(cudaMemcpy(d_fitness, fitness, sizeof(int) * pop_size,
-                               cudaMemcpyHostToDevice));
+
   CUDA_CHECK_RETURN(cudaMemcpy(d_target, target, sizeof(char) * el_sz,
                                cudaMemcpyHostToDevice));
   gettimeofday(&start, NULL);
   while (bestfit) {
-	printf("%d", i);
-    fitness_kernel<<<grid_dime, block_dime>>>(d_fitness, d_p, el_sz,
-                                                 total_sz, d_target);
+    CUDA_CHECK_RETURN(
+        cudaMemcpy(d_p, p, sizeof(char) * total_sz, cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpy(d_fitness, fitness, sizeof(int) * pop_size,
+                                 cudaMemcpyHostToDevice));
+    printf("%d \n", i);
+    fitness_kernel<<<grid_dime, block_dime>>>(d_fitness, d_p, el_sz, total_sz,
+                                              d_target);
     CUDA_CHECK_RETURN(cudaDeviceSynchronize());
     CUDA_CHECK_RETURN(cudaMemcpy(fitness, d_fitness, sizeof(int) * pop_size,
                                  cudaMemcpyDeviceToHost));
