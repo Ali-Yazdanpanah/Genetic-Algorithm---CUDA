@@ -40,7 +40,7 @@ static char rndchr(char *map) { return *(map + RANDBETWEEN(0, strlen(map))); }
 static char randchar() { return rndchr(CHARMAP); }
 
 static char *rndstr(char *map, size_t strsize) {
-  char *result = malloc(strsize);
+  char *result = malloc(strsize*szieof(char));
   size_t i;
 
   for (i = 0; i < strsize; i++) {
@@ -267,7 +267,7 @@ int main(int argc, char **argv) {
   el_sz = strlen(target);
   total_sz = pop_size * el_sz;
   char *p = rndstr(CHARMAP, total_sz);
-  char *b = malloc(total_sz);
+  char *b = malloc(total_sz*sizeof(char));
   char *d_p;
   int *d_fitness;
   int *fitness = malloc(pop_size * sizeof(int));
@@ -286,7 +286,7 @@ int main(int argc, char **argv) {
                                cudaMemcpyHostToDevice));
   gettimeofday(&start, NULL);
   while (bestfit) {
-    calculate_fitness<<<grid, threads>>>(d_fitness, d_p, el_sz, total_sz,
+    calculate_fitness<<<grid_dime, block_dime>>>(d_fitness, d_p, el_sz, total_sz,
                                          target);
     CUDA_CHECK_RETURN(cudaDeviceSynchronize());
     CUDA_CHECK_RETURN(cudaMemcpy(fitness, d_fitness, sizeof(int) * pop_size,
