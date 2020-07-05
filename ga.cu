@@ -291,6 +291,7 @@ int main(int argc, char **argv) {
                                cudaMemcpyHostToDevice));
   gettimeofday(&start, NULL);
   while (bestfit) {
+	printf("%d", i);
     fitness_kernel<<<grid_dime, block_dime>>>(d_fitness, d_p, el_sz,
                                                  total_sz, d_target);
     CUDA_CHECK_RETURN(cudaDeviceSynchronize());
