@@ -40,7 +40,7 @@ static char rndchr(char *map) { return *(map + RANDBETWEEN(0, strlen(map))); }
 static char randchar() { return rndchr(CHARMAP); }
 
 static char *rndstr(char *map, size_t strsize) {
-  char *result = malloc(strsize*szieof(char));
+  char *result = (char *)malloc(strsize*sizeof(char));
   size_t i;
 
   for (i = 0; i < strsize; i++) {
@@ -266,8 +266,8 @@ int main(int argc, char **argv) {
 
   el_sz = strlen(target);
   total_sz = pop_size * el_sz;
-  char *p = rndstr(CHARMAP, total_sz);
-  char *b = malloc(total_sz*sizeof(char));
+  char *p = (char *)rndstr(CHARMAP, total_sz);
+  char *b = (char *)malloc(total_sz*sizeof(char));
   char *d_p;
   int *d_fitness;
   int *fitness = malloc(pop_size * sizeof(int));
