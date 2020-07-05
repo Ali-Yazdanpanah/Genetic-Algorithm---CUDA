@@ -1,4 +1,4 @@
-all: GA-serial GA-parallel
+all: ga-serial ga-parallel
 
 ga-serial: ga.c
 	gcc -pg ga.c -o ga-serial
