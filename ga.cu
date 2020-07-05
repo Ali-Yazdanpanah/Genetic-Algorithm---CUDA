@@ -7,6 +7,15 @@
 #include <time.h>
 #include <unistd.h>
 
+//Macro for checking cuda errors following a cuda launch or api call
+#define CUDA_CHECK_RETURN(value) {											\
+	cudaError_t _m_cudaStat = value;										\
+	if (_m_cudaStat != cudaSuccess) {										\
+		fprintf(stderr, "Error %s at line %d in file %s\n",					\
+				cudaGetErrorString(_m_cudaStat), __LINE__, __FILE__);		\
+		exit(1);															\
+	} }
+
 #define O_SPARTA 0x01
 
 #define CHARMAP                                                                \
@@ -266,6 +275,8 @@ int main(int argc, char **argv) {
   if(pop_size > 64){
 	  grids = pop_size/64 + 1;
   }
+  dim3 grid_dime(grids, 1, 1);
+  dim3 block_dime(64, 1, 1);
   CUDA_CHECK_RETURN(cudaMalloc((void **)&d_p, sizeof(char) * total_sz));
   CUDA_CHECK_RETURN(cudaMalloc((void **)&d_fitness, sizeof(int) * pop_size));
 
@@ -275,7 +286,7 @@ int main(int argc, char **argv) {
                                cudaMemcpyHostToDevice));
   gettimeofday(&start, NULL);
   while (bestfit) {
-    calculate_fitness<<<grids, 64>>>(d_fitness, d_p, el_sz, total_sz,
+    calculate_fitness<<<grid, threads>>>(d_fitness, d_p, el_sz, total_sz,
                                          target);
     CUDA_CHECK_RETURN(cudaDeviceSynchronize());
     CUDA_CHECK_RETURN(cudaMemcpy(fitness, d_fitness, sizeof(int) * pop_size,
