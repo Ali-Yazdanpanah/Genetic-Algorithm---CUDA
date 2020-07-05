@@ -7,14 +7,16 @@
 #include <time.h>
 #include <unistd.h>
 
-//Macro for checking cuda errors following a cuda launch or api call
-#define CUDA_CHECK_RETURN(value) {											\
-	cudaError_t _m_cudaStat = value;										\
-	if (_m_cudaStat != cudaSuccess) {										\
-		fprintf(stderr, "Error %s at line %d in file %s\n",					\
-				cudaGetErrorString(_m_cudaStat), __LINE__, __FILE__);		\
-		exit(1);															\
-	} }
+// Macro for checking cuda errors following a cuda launch or api call
+#define CUDA_CHECK_RETURN(value)                                               \
+  {                                                                            \
+    cudaError_t _m_cudaStat = value;                                           \
+    if (_m_cudaStat != cudaSuccess) {                                          \
+      fprintf(stderr, "Error %s at line %d in file %s\n",                      \
+              cudaGetErrorString(_m_cudaStat), __LINE__, __FILE__);            \
+      exit(1);                                                                 \
+    }                                                                          \
+  }
 
 #define O_SPARTA 0x01
 
@@ -40,7 +42,7 @@ static char rndchr(char *map) { return *(map + RANDBETWEEN(0, strlen(map))); }
 static char randchar() { return rndchr(CHARMAP); }
 
 static char *rndstr(char *map, size_t strsize) {
-  char *result = (char *)malloc(strsize*sizeof(char));
+  char *result = (char *)malloc(strsize * sizeof(char));
   size_t i;
 
   for (i = 0; i < strsize; i++) {
@@ -214,7 +216,7 @@ void calculate_fitness(int *fitness, char *p, int el_sz, int total_sz,
   }
 }
 
-__global__ void fitness_kernel(int *fitness, char *p, int el_sz, int total_sz,
+__device__ void fitness_kernel(int *fitness, char *p, int el_sz, int total_sz,
                                char *gauge) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (idx < total_sz) {
@@ -267,27 +269,29 @@ int main(int argc, char **argv) {
   el_sz = strlen(target);
   total_sz = pop_size * el_sz;
   char *p = (char *)rndstr(CHARMAP, total_sz);
-  char *b = (char *)malloc(total_sz*sizeof(char));
+  char *b = (char *)malloc(total_sz * sizeof(char));
   char *d_p;
   int *d_fitness;
   int *fitness = (int *)malloc(pop_size * sizeof(int));
-  int grids; 
-  if(pop_size > 64){
-	  grids = pop_size/64 + 1;
+  int grids;
+  if (pop_size > 64) {
+    grids = pop_size / 64 + 1;
   }
   dim3 grid_dime(grids, 1, 1);
   dim3 block_dime(64, 1, 1);
   CUDA_CHECK_RETURN(cudaMalloc((void **)&d_p, sizeof(char) * total_sz));
   CUDA_CHECK_RETURN(cudaMalloc((void **)&d_fitness, sizeof(int) * pop_size));
-
+  CUDA_CHECK_RETURN(cudaMalloc((void **)&d_target, sizeof(char) * el_sz));
   CUDA_CHECK_RETURN(
       cudaMemcpy(d_p, p, sizeof(char) * total_sz, cudaMemcpyHostToDevice));
   CUDA_CHECK_RETURN(cudaMemcpy(d_fitness, fitness, sizeof(int) * pop_size,
                                cudaMemcpyHostToDevice));
+  CUDA_CHECK_RETURN(cudaMemcpy(d_target, target, sizeof(char) * el_sz,
+                               cudaMemcpyHostToDevice));
   gettimeofday(&start, NULL);
   while (bestfit) {
-    calculate_fitness<<<grid_dime, block_dime>>>(d_fitness, d_p, el_sz, total_sz,
-                                         target);
+    calculate_fitness<<<grid_dime, block_dime>>>(d_fitness, d_p, el_sz,
+                                                 total_sz, d_target);
     CUDA_CHECK_RETURN(cudaDeviceSynchronize());
     CUDA_CHECK_RETURN(cudaMemcpy(fitness, d_fitness, sizeof(int) * pop_size,
                                  cudaMemcpyDeviceToHost));
