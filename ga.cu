@@ -272,6 +272,7 @@ int main(int argc, char **argv) {
   char *b = (char *)malloc(total_sz * sizeof(char));
   char *d_p;
   int *d_fitness;
+  char *d_target;
   int *fitness = (int *)malloc(pop_size * sizeof(int));
   int grids;
   if (pop_size > 64) {
