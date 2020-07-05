@@ -270,7 +270,7 @@ int main(int argc, char **argv) {
   char *b = (char *)malloc(total_sz*sizeof(char));
   char *d_p;
   int *d_fitness;
-  int *fitness = malloc(pop_size * sizeof(int));
+  int *fitness = (int *)malloc(pop_size * sizeof(int));
   int grids; 
   if(pop_size > 64){
 	  grids = pop_size/64 + 1;
