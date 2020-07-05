@@ -28,7 +28,7 @@
 #define RANDBETWEEN(A, B) A + rand() / (RAND_MAX / (B - A))
 #define CHANCE(A) rand() < A *RAND_MAX
 
-static char target[] = "Hello world";
+static char *target = "Hello world";
 static size_t el_sz;
 static size_t total_sz;
 static char options = 0;
